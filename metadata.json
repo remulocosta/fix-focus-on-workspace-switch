@@ -1,0 +1,8 @@
+{
+  "name": "Workspace Focus Fix",
+  "description": "When a workspace switch occurs, this extension ensures the focus is on a window located on the new workspace.",
+  "uuid": "workspace-focus-fix@hiddn.github.com",
+  "shell-version": [
+    "43"
+  ]
+}
