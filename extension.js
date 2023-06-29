@@ -34,9 +34,12 @@ SOFTWARE.
 
 
 'use strict';
+
 const __DEBUG__ = false;
+let sourceId = null;
 
 const GLib = imports.gi.GLib;
+
 
 function init() {
     // do nothing
@@ -44,12 +47,20 @@ function init() {
 
 function enable() {
     global.workspace_manager.connect('workspace-switched', _setFocus);
-    log(`WorkspaceFocus enabled`)
+    if (__DEBUG__) {
+        log(`WorkspaceFocus enabled`)
+    }
 }
 
 function disable() {
     global.workspace_manager.disconnect(_setFocus);
-    log(`WorkspaceFocus disabled`)
+    if (sourceId) {
+        GLib.Source.remove(sourceId);
+        sourceId = null;
+    }
+    if (__DEBUG__) {
+        log(`WorkspaceFocus disabled`)
+    }
 
 }
 
@@ -97,7 +108,7 @@ function _setFocus() {
         }
         
         // A delay is required here, otherwise focus is not properly applied to the window
-        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => (window.activate(global.get_current_time())));
+        sourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => (window.activate(global.get_current_time())));
         break;
     }
 }
