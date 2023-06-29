@@ -1,4 +1,4 @@
-/* Workspace Focus Fix
+/* Fix focus on workspace switch
  * 
  * *********** Author ***********
  * Hidden <hidden@undernet.org>
