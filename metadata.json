@@ -3,7 +3,7 @@
   "description": "When a workspace switch occurs, this extension ensures the focus is on a window located on the new workspace.",
   "uuid": "fix-focus-on-workspace-switch@hiddn.github.com",
   "shell-version": [
-    "43"
+    "40", "41", "42", "43", "44"
   ],
   "url": "https://github.com/hiddn/fix-focus-on-workspace-switch"
 }
