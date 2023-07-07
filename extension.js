@@ -77,7 +77,8 @@ function isWindowInNonWorkspace(window) {
                 // Get the window title from the window actor
                 windowTitle = windowActor.get_meta_window().get_title();
             }
-            log(`isWindowInNonWorkspace() is true for [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
+            const timestamp = GLib.DateTime.new_now_local().format('%Y-%m-%d %H:%M:%S');
+            log(`[${timestamp}] isWindowInNonWorkspace() is true for [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
         }
     }
     return ret;
@@ -104,7 +105,8 @@ function _setFocus() {
                 // Get the window title from the window actor
                 windowTitle = windowActor.get_meta_window().get_title();
             }
-            log(`Most recent window: [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
+            const timestamp = GLib.DateTime.new_now_local().format('%Y-%m-%d %H:%M:%S');
+            log(`[${timestamp}] Most recent window: [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
         }
         
         // A delay is required here, otherwise focus is not properly applied to the window
