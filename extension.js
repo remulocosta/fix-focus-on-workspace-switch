@@ -45,7 +45,7 @@ export default class WorkspaceFocusExtension extends Extension {
     enable() {
         this._workspaceSwitchedSignal = global.workspace_manager.connect('workspace-switched', _setFocus);
         if (__DEBUG__) {
-            log(`WorkspaceFocus enabled`)
+            console.log(`WorkspaceFocus enabled`)
         }
     }
 
@@ -56,7 +56,7 @@ export default class WorkspaceFocusExtension extends Extension {
             sourceId = null;
         }
         if (__DEBUG__) {
-            log(`WorkspaceFocus disabled`)
+            console.log(`WorkspaceFocus disabled`)
         }
     }
 }
@@ -75,7 +75,7 @@ function isWindowInNonWorkspace(window) {
                 windowTitle = windowActor.get_meta_window().get_title();
             }
             const timestamp = GLib.DateTime.new_now_local().format('%Y-%m-%d %H:%M:%S');
-            log(`[${timestamp}] isWindowInNonWorkspace() is true for [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
+            console.debug(`[${timestamp}] isWindowInNonWorkspace() is true for [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
         }
     }
     return ret;
@@ -103,7 +103,7 @@ function _setFocus() {
                 windowTitle = windowActor.get_meta_window().get_title();
             }
             const timestamp = GLib.DateTime.new_now_local().format('%Y-%m-%d %H:%M:%S');
-            log(`[${timestamp}] Most recent window: [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
+            console.debug(`[${timestamp}] Most recent window: [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
         }
         
         // A delay is required here, otherwise focus is not properly applied to the window
