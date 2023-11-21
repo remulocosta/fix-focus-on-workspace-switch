@@ -35,33 +35,30 @@ SOFTWARE.
 
 'use strict';
 
+import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+import GLib from 'gi://GLib';
+
 const __DEBUG__ = false;
 let sourceId = null;
 
-const GLib = imports.gi.GLib;
-
-
-function init() {
-    // do nothing
-}
-
-function enable() {
-    global.workspace_manager.connect('workspace-switched', _setFocus);
-    if (__DEBUG__) {
-        log(`WorkspaceFocus enabled`)
-    }
-}
-
-function disable() {
-    global.workspace_manager.disconnect(_setFocus);
-    if (sourceId) {
-        GLib.Source.remove(sourceId);
-        sourceId = null;
-    }
-    if (__DEBUG__) {
-        log(`WorkspaceFocus disabled`)
+export default class WorkspaceFocusExtension extends Extension {
+    enable() {
+        global.workspace_manager.connect('workspace-switched', _setFocus);
+        if (__DEBUG__) {
+            log(`WorkspaceFocus enabled`)
+        }
     }
 
+    disable() {
+        global.workspace_manager.disconnect(_setFocus);
+        if (sourceId) {
+            GLib.Source.remove(sourceId);
+            sourceId = null;
+        }
+        if (__DEBUG__) {
+            log(`WorkspaceFocus disabled`)
+        }
+    }
 }
 
 function isWindowInNonWorkspace(window) {
@@ -77,8 +74,7 @@ function isWindowInNonWorkspace(window) {
                 // Get the window title from the window actor
                 windowTitle = windowActor.get_meta_window().get_title();
             }
-            const timestamp = GLib.DateTime.new_now_local().format('%Y-%m-%d %H:%M:%S');
-            log(`[${timestamp}] isWindowInNonWorkspace() is true for [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
+            log(`isWindowInNonWorkspace() is true for [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
         }
     }
     return ret;
@@ -105,8 +101,7 @@ function _setFocus() {
                 // Get the window title from the window actor
                 windowTitle = windowActor.get_meta_window().get_title();
             }
-            const timestamp = GLib.DateTime.new_now_local().format('%Y-%m-%d %H:%M:%S');
-            log(`[${timestamp}] Most recent window: [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
+            log(`Most recent window: [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
         }
         
         // A delay is required here, otherwise focus is not properly applied to the window
