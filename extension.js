@@ -43,14 +43,14 @@ let sourceId = null;
 
 export default class WorkspaceFocusExtension extends Extension {
     enable() {
-        global.workspace_manager.connect('workspace-switched', _setFocus);
+        this._workspaceSwitchedSignal = global.workspace_manager.connect('workspace-switched', _setFocus);
         if (__DEBUG__) {
             log(`WorkspaceFocus enabled`)
         }
     }
 
     disable() {
-        global.workspace_manager.disconnect(_setFocus);
+        global.workspace_manager.disconnect(this._workspaceSwitchedSignal);
         if (sourceId) {
             GLib.Source.remove(sourceId);
             sourceId = null;
