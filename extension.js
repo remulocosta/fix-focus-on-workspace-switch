@@ -39,7 +39,7 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import GLib from 'gi://GLib';
 
 const __DEBUG__ = false;
-let sourceId = null;
+let sourceIds = [];
 
 export default class WorkspaceFocusExtension extends Extension {
     enable() {
@@ -50,10 +50,13 @@ export default class WorkspaceFocusExtension extends Extension {
     }
 
     disable() {
+        let sid = null;
         global.workspace_manager.disconnect(this._workspaceSwitchedSignal);
-        if (sourceId) {
-            GLib.Source.remove(sourceId);
-            sourceId = null;
+        if (len(sourceIds) > 0) {
+            for (sid in sourceIds) {
+                GLib.Source.remove(sid);
+            }
+            sourceIds = null;
         }
         if (__DEBUG__) {
             console.log(`WorkspaceFocus disabled`)
@@ -107,7 +110,12 @@ function _setFocus() {
         }
         
         // A delay is required here, otherwise focus is not properly applied to the window
-        sourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => (window.activate(global.get_current_time())));
+        let sid = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+            window.activate(global.get_current_time());
+            GLib.Source.remove(sourceIds.shift());
+            return false;
+        });
+        sourceIds.push(sid)
         break;
     }
 }
