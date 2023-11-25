@@ -52,11 +52,11 @@ export default class WorkspaceFocusExtension extends Extension {
     disable() {
         let sid = null;
         global.workspace_manager.disconnect(this._workspaceSwitchedSignal);
-        if (len(sourceIds) > 0) {
+        if (sourceIds.length > 0) {
             for (sid in sourceIds) {
                 GLib.Source.remove(sid);
             }
-            sourceIds = null;
+            sourceIds = [];
         }
         if (__DEBUG__) {
             console.log(`WorkspaceFocus disabled`)
@@ -112,7 +112,9 @@ function _setFocus() {
         // A delay is required here, otherwise focus is not properly applied to the window
         let sid = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
             window.activate(global.get_current_time());
-            GLib.Source.remove(sourceIds.shift());
+            if (sourceIds.length > 0) {
+                GLib.Source.remove(sourceIds.shift());
+            }
             return false;
         });
         sourceIds.push(sid)
