@@ -39,28 +39,59 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import GLib from 'gi://GLib';
 
 const __DEBUG__ = false;
-let sourceId = null;
+let sourceIds = [];
 
+/**
+ * WorkspaceFocusExtension class extends the basic GNOME Shell Extension.
+ * It focuses on managing the active window focus within workspaces.
+ */
 export default class WorkspaceFocusExtension extends Extension {
+
+    /**
+     * Enable function for the extension.
+     * This function is called when the extension is enabled.
+     * It connects the 'workspace-switched' signal to the _setFocus function.
+     */
     enable() {
         global.workspace_manager.connect('workspace-switched', _setFocus);
         if (__DEBUG__) {
-            log(`WorkspaceFocus enabled`)
+            console.log(`WorkspaceFocus enabled`)
         }
     }
 
+    /**
+     * Disable function for the extension.
+     * This function is called when the extension is disabled.
+     * It disconnects the 'workspace-switched' signal and clears any pending timeouts.
+     */
     disable() {
+        // Disconnects the _setFocus function from the workspace manager's 'workspace-switched' signal.
+        // This stops the extension from adjusting focus when the workspace is switched.
         global.workspace_manager.disconnect(_setFocus);
-        if (sourceId) {
-            GLib.Source.remove(sourceId);
-            sourceId = null;
-        }
+
+        // Iterates over all the stored source IDs (representing scheduled timeouts) and removes each one.
+        // This is necessary to clean up any pending timeouts to prevent them from running after the extension is disabled.
+        sourceIds.forEach(id => {
+            GLib.Source.remove(id);
+        });
+
+        // Resets the sourceIds array to an empty array.
+        // This is done to clear the references to the timeouts that have now been removed.
+        sourceIds = [];
+
+        // If debugging is enabled, logs a message to the console indicating that the extension has been disabled.
+        // This is helpful for development and troubleshooting.
         if (__DEBUG__) {
-            log(`WorkspaceFocus disabled`)
+            console.log(`WorkspaceFocus disabled`);
         }
     }
 }
 
+/**
+ * Checks if a given window is on all workspaces (pinned).
+ * @param {Object} window - The window to check.
+ * @returns {boolean} - True if the window is on all workspaces, false otherwise.
+ */
 function isWindowInNonWorkspace(window) {
     const ret = window.is_on_all_workspaces();
     if (__DEBUG__) {
@@ -74,13 +105,16 @@ function isWindowInNonWorkspace(window) {
                 // Get the window title from the window actor
                 windowTitle = windowActor.get_meta_window().get_title();
             }
-            log(`isWindowInNonWorkspace() is true for [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
+            console.log(`isWindowInNonWorkspace() is true for [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
         }
     }
     return ret;
 }
 
-
+/**
+ * Set focus to the most recently used window in the active workspace.
+ * This function is connected to the 'workspace-switched' signal.
+ */
 function _setFocus() {
     const workspace = global.workspace_manager.get_active_workspace();
     const windowList = workspace.list_windows();
@@ -101,12 +135,14 @@ function _setFocus() {
                 // Get the window title from the window actor
                 windowTitle = windowActor.get_meta_window().get_title();
             }
-            log(`Most recent window: [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
+            console.log(`Most recent window: [${workspace.index()}] ${window.get_id()} - ${windowTitle}`);
         }
         
         // A delay is required here, otherwise focus is not properly applied to the window
-        sourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => (window.activate(global.get_current_time())));
+        sourceIds.push(GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+            window.activate(global.get_current_time());
+            return false; // Ensures that the timeout is not rescheduled
+        }));
         break;
     }
 }
-
